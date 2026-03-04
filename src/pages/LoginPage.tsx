@@ -7,7 +7,6 @@ import useBookmarkStore from "../stores/useBookmarkStore";
 import useNotificationStore from "../stores/useNotificationStore";
 import useThemeStore from "../stores/useThemeStore";
 import { useNavigate } from "react-router-dom";
-import ThemeToggle from "../components/ThemeToggle";
 
 export default function LoginPage() {
   const { t } = useTranslation();
@@ -22,48 +21,18 @@ export default function LoginPage() {
     try {
       const result = await signInWithPopup(auth, googleProvider);
       const u = result.user;
-      setUser({
-        uid: u.uid,
-        displayName: u.displayName,
-        photoURL: u.photoURL,
-        email: u.email,
-      });
+      setUser({ uid: u.uid, displayName: u.displayName, photoURL: u.photoURL, email: u.email });
       await loadFromFirestore(u.uid);
       await loadBookmarks(u.uid);
       await loadNotifications(u.uid);
 
       const { notifications: loaded } = useNotificationStore.getState();
       if (loaded.length === 0) {
-        await addNotification(u.uid, {
-          artistId: "system",
-          artistName: "NABI",
-          title: `Welcome to NABI, ${u.displayName || "friend"}! 🦋`,
-          body: "Start by picking your favorite artists and explore the latest K-POP news translated just for you.",
-          type: "system",
-        });
-        await addNotification(u.uid, {
-          artistId: "bts",
-          artistName: "BTS",
-          title: "BTS RM drops surprise solo track",
-          body: "RM just released a new single on Spotify. Fans are going wild!",
-          type: "news",
-        });
-        await addNotification(u.uid, {
-          artistId: "blackpink",
-          artistName: "BLACKPINK",
-          title: "BLACKPINK world tour dates announced",
-          body: "BLACKPINK confirmed 30 cities for their 2026 world tour.",
-          type: "news",
-        });
-        await addNotification(u.uid, {
-          artistId: "newjeans",
-          artistName: "NewJeans",
-          title: "New merch drop: NewJeans x Converse 👟",
-          body: "Limited edition NewJeans x Converse sneakers are now available in the NABI Shop!",
-          type: "shop",
-        });
+        await addNotification(u.uid, { artistId: "system", artistName: "NABI", title: `Welcome to NABI, ${u.displayName || "friend"}! 🦋`, body: "Start by picking your favorite artists and explore the latest K-POP news.", type: "system" });
+        await addNotification(u.uid, { artistId: "bts", artistName: "BTS", title: "BTS RM drops surprise solo track", body: "RM just released a new single on Spotify. Fans are going wild!", type: "news" });
+        await addNotification(u.uid, { artistId: "blackpink", artistName: "BLACKPINK", title: "BLACKPINK world tour dates announced", body: "BLACKPINK confirmed 30 cities for their 2026 world tour.", type: "news" });
+        await addNotification(u.uid, { artistId: "newjeans", artistName: "NewJeans", title: "New merch drop: NewJeans x Converse 👟", body: "Limited edition sneakers now available!", type: "shop" });
       }
-
       navigate("/select");
     } catch (error) {
       console.error("Login failed:", error);
@@ -73,36 +42,30 @@ export default function LoginPage() {
   const isDark = theme === "dark";
 
   return (
-    <div
-      className={`min-h-screen flex flex-col items-center justify-center gap-8 px-6 relative overflow-hidden ${
-        isDark ? "bg-black" : "bg-white"
-      }`}
-    >
+    <div className={`min-h-screen flex flex-col items-center justify-center px-8 relative overflow-hidden ${isDark ? "dark-vars bg-[#0A0A0F]" : "bg-white"}`}>
       {/* 배경 장식 */}
-      <div className="absolute top-20 -left-20 w-40 h-40 rounded-full bg-purple-500/10 blur-3xl" />
-      <div className="absolute bottom-32 -right-20 w-56 h-56 rounded-full bg-pink-500/10 blur-3xl" />
-
-      <div className="absolute top-5 right-5 animate-fade-in">
-        <ThemeToggle />
-      </div>
+      <div className="absolute top-24 -left-16 w-48 h-48 rounded-full bg-[#E91E63]/8 blur-[60px]" />
+      <div className="absolute bottom-36 -right-16 w-56 h-56 rounded-full bg-[#9C27B0]/8 blur-[60px]" />
 
       {/* 로고 */}
-      <div className="flex flex-col items-center gap-3 animate-fade-in-up" style={{ animationDelay: "0.1s" }}>
-        <span className="text-6xl animate-float">🦋</span>
-        <h1 className={`text-4xl font-black tracking-widest ${isDark ? "text-white" : "text-gray-900"}`}>
+      <div className="flex flex-col items-center gap-4 mb-12 animate-fade-in-up">
+        <span className="text-5xl animate-float">✦</span>
+        <h1 className={`text-4xl font-black tracking-[0.2em] ${isDark ? "text-white" : "text-gray-900"}`}>
           NABI
         </h1>
-        <p className="text-sm text-gray-500 text-center">{t("splash.tagline")}</p>
+        <p className={`text-sm text-center leading-relaxed ${isDark ? "text-gray-500" : "text-gray-400"}`}>
+          {t("splash.tagline")}
+        </p>
       </div>
 
-      {/* 구글 로그인 */}
-      <div className="flex flex-col gap-4 w-full max-w-xs animate-fade-in-up" style={{ animationDelay: "0.3s" }}>
+      {/* 버튼 영역 */}
+      <div className="flex flex-col gap-4 w-full max-w-sm animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
         <button
           onClick={handleGoogleLogin}
-          className={`flex items-center justify-center gap-3 font-semibold px-6 py-4 rounded-2xl active:scale-95 transition-all shadow-lg ${
+          className={`flex items-center justify-center gap-3 font-semibold w-full py-4 rounded-2xl active:scale-[0.97] transition-all shadow-lg ${
             isDark
-              ? "bg-white text-black shadow-white/5"
-              : "bg-gray-900 text-white shadow-gray-300/30"
+              ? "bg-white text-gray-900 shadow-white/5"
+              : "bg-gray-900 text-white shadow-gray-300/20"
           }`}
         >
           <svg className="w-5 h-5" viewBox="0 0 24 24">
@@ -116,7 +79,7 @@ export default function LoginPage() {
 
         <button
           onClick={() => navigate("/select")}
-          className="text-sm text-gray-500 underline underline-offset-4 py-2"
+          className={`text-sm py-3 ${isDark ? "text-gray-500" : "text-gray-400"}`}
         >
           {t("login.guest")}
         </button>
