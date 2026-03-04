@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { getSourceLabel } from "../utils/sourceIcon";
 import useThemeStore from "../stores/useThemeStore";
 import useBookmarkStore from "../stores/useBookmarkStore";
@@ -10,6 +11,7 @@ import {
   getCommentCount,
 } from "../services/communityService";
 import CommentModal from "./CommentModal";
+import ShareCard from "./ShareCard";
 
 interface Props {
   item: {
@@ -25,6 +27,7 @@ interface Props {
 }
 
 export default function FeedCard({ item }: Props) {
+  const { t } = useTranslation();
   const source = getSourceLabel(item.source);
   const { theme } = useThemeStore();
   const { user } = useAuthStore();
@@ -37,6 +40,7 @@ export default function FeedCard({ item }: Props) {
   const [likeCount, setLikeCount] = useState(0);
   const [commentCount, setCommentCount] = useState(0);
   const [showComments, setShowComments] = useState(false);
+  const [showShare, setShowShare] = useState(false);
 
   useEffect(() => {
     getLikeCount(item.id).then(setLikeCount);
@@ -49,7 +53,7 @@ export default function FeedCard({ item }: Props) {
   const handleLike = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!user) {
-      alert("Please login to like articles!");
+      alert(t("common.login_required_like"));
       return;
     }
     toggleLike(item.id, user.uid).then((isNowLiked) => {
@@ -63,10 +67,15 @@ export default function FeedCard({ item }: Props) {
     setShowComments(true);
   };
 
+  const handleShare = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setShowShare(true);
+  };
+
   const handleBookmark = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!user) {
-      alert("Please login to bookmark articles!");
+      alert(t("common.login_required_bookmark"));
       return;
     }
     if (saved) {
@@ -148,11 +157,11 @@ export default function FeedCard({ item }: Props) {
 
           {item.url && (
             <span className="text-[10px] text-purple-400">
-              Tap to read full article →
+              {t("feed.read_more")}
             </span>
           )}
 
-          {/* 액션 바: 좋아요 / 댓글 / 북마크 */}
+          {/* 액션 바 */}
           <div
             className={`flex items-center justify-between pt-2 mt-1 border-t ${
               isDark ? "border-gray-800" : "border-gray-100"
@@ -180,6 +189,16 @@ export default function FeedCard({ item }: Props) {
               {commentCount > 0 && <span>{commentCount}</span>}
             </button>
 
+            {/* 공유 */}
+            <button
+              onClick={handleShare}
+              className={`flex items-center gap-1.5 text-xs transition-all active:scale-110 ${
+                isDark ? "text-gray-500" : "text-gray-400"
+              }`}
+            >
+              <span className="text-base">📤</span>
+            </button>
+
             {/* 북마크 */}
             <button
               onClick={handleBookmark}
@@ -201,6 +220,14 @@ export default function FeedCard({ item }: Props) {
             setShowComments(false);
             getCommentCount(item.id).then(setCommentCount);
           }}
+        />
+      )}
+
+      {/* 공유 모달 */}
+      {showShare && (
+        <ShareCard
+          item={item}
+          onClose={() => setShowShare(false)}
         />
       )}
     </>
