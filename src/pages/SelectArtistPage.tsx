@@ -2,10 +2,20 @@ import { useNavigate } from "react-router-dom";
 import artists from "../data/artists";
 import ArtistCard from "../components/ArtistCard";
 import useArtistStore from "../stores/useArtistStore";
+import useAuthStore from "../stores/useAuthStore";
 
 export default function SelectArtistPage() {
-  const { selectedArtists, toggleArtist } = useArtistStore();
+  const { selectedArtists, toggleArtist, saveToFirestore } = useArtistStore();
+  const { user } = useAuthStore();
   const navigate = useNavigate();
+
+  const handleContinue = async () => {
+    // 로그인 유저면 Firestore에 저장
+    if (user) {
+      await saveToFirestore(user.uid);
+    }
+    navigate("/feed");
+  };
 
   return (
     <div className="min-h-screen bg-black text-white flex flex-col">
@@ -35,7 +45,7 @@ export default function SelectArtistPage() {
       <div className="fixed bottom-0 left-0 right-0 p-5 bg-gradient-to-t from-black via-black/95 to-transparent">
         <button
           disabled={selectedArtists.length === 0}
-          onClick={() => navigate("/feed")}
+          onClick={handleContinue}
           className={`
             w-full py-4 rounded-2xl text-base font-bold transition-all
             ${

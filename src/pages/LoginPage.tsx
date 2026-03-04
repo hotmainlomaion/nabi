@@ -1,10 +1,12 @@
 import { signInWithPopup } from "firebase/auth";
 import { auth, googleProvider } from "../firebase";
 import useAuthStore from "../stores/useAuthStore";
+import useArtistStore from "../stores/useArtistStore";
 import { useNavigate } from "react-router-dom";
 
 export default function LoginPage() {
   const { setUser } = useAuthStore();
+  const { loadFromFirestore } = useArtistStore();
   const navigate = useNavigate();
 
   const handleGoogleLogin = async () => {
@@ -17,6 +19,10 @@ export default function LoginPage() {
         photoURL: u.photoURL,
         email: u.email,
       });
+
+      // Firestore에서 저장된 아티스트 선택 불러오기
+      await loadFromFirestore(u.uid);
+
       navigate("/select");
     } catch (error) {
       console.error("Login failed:", error);
