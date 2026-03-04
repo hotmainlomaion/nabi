@@ -7,23 +7,26 @@ import artists from "../data/artists";
 import FeedCard from "../components/FeedCard";
 import useArtistStore from "../stores/useArtistStore";
 import useAuthStore from "../stores/useAuthStore";
+import useThemeStore from "../stores/useThemeStore";
+import ThemeToggle from "../components/ThemeToggle";
 
 export default function FeedPage() {
   const navigate = useNavigate();
   const { selectedArtists } = useArtistStore();
   const { user, clearUser } = useAuthStore();
+  const { theme } = useThemeStore();
 
-  // 선택된 아티스트 정보 가져오기
+  const isDark = theme === "dark";
+
   const selectedArtistInfo = artists
     .filter((a) => selectedArtists.includes(a.id))
     .map((a) => ({ id: a.id, name: a.name }));
 
-  // React Query로 뉴스 불러오기
   const { data: newsItems, isLoading, isError, refetch } = useQuery({
     queryKey: ["news", selectedArtists],
     queryFn: () => fetchNewsForArtists(selectedArtistInfo),
     enabled: selectedArtists.length > 0,
-    staleTime: 5 * 60 * 1000, // 5분간 캐시
+    staleTime: 5 * 60 * 1000,
   });
 
   const handleLogout = async () => {
@@ -33,12 +36,23 @@ export default function FeedPage() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col">
+    <div
+      className={`min-h-screen flex flex-col ${
+        isDark ? "bg-black text-white" : "bg-gray-50 text-gray-900"
+      }`}
+    >
       {/* 헤더 */}
-      <div className="sticky top-0 z-10 bg-black/90 backdrop-blur-sm border-b border-gray-800 px-5 py-4 flex items-center justify-between">
+      <div
+        className={`sticky top-0 z-10 backdrop-blur-sm px-5 py-4 flex items-center justify-between border-b ${
+          isDark
+            ? "bg-black/90 border-gray-800"
+            : "bg-white/90 border-gray-200"
+        }`}
+      >
         <h1 className="text-xl font-bold">🦋 NABI</h1>
 
         <div className="flex items-center gap-3">
+          <ThemeToggle />
           <button
             onClick={() => navigate("/select")}
             className="text-xs text-purple-400 border border-purple-400/30 px-3 py-1.5 rounded-full"
@@ -69,7 +83,11 @@ export default function FeedPage() {
       <div className="px-4 pt-3">
         <button
           onClick={() => refetch()}
-          className="text-xs text-gray-500 border border-gray-800 px-3 py-1.5 rounded-full active:scale-95 transition-all"
+          className={`text-xs px-3 py-1.5 rounded-full active:scale-95 transition-all border ${
+            isDark
+              ? "text-gray-500 border-gray-800"
+              : "text-gray-500 border-gray-300"
+          }`}
         >
           🔄 Refresh news
         </button>

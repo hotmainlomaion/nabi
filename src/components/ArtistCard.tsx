@@ -1,4 +1,5 @@
 import type { Artist } from "../data/artists";
+import useThemeStore from "../stores/useThemeStore";
 
 interface Props {
   artist: Artist;
@@ -7,6 +8,9 @@ interface Props {
 }
 
 export default function ArtistCard({ artist, selected, onToggle }: Props) {
+  const { theme } = useThemeStore();
+  const isDark = theme === "dark";
+
   return (
     <button
       onClick={() => onToggle(artist.id)}
@@ -16,8 +20,10 @@ export default function ArtistCard({ artist, selected, onToggle }: Props) {
         transition-all duration-200 active:scale-95
         ${
           selected
-            ? `${artist.color} bg-white/10 shadow-lg shadow-white/5`
-            : "border-gray-800 bg-gray-900/50"
+            ? `${artist.color} ${isDark ? "bg-white/10 shadow-lg shadow-white/5" : "bg-purple-50 shadow-lg shadow-purple-200/50"}`
+            : isDark
+            ? "border-gray-800 bg-gray-900/50"
+            : "border-gray-200 bg-gray-50"
         }
       `}
     >
@@ -27,8 +33,14 @@ export default function ArtistCard({ artist, selected, onToggle }: Props) {
         </div>
       )}
       <span className="text-3xl">{artist.emoji}</span>
-      <span className="text-sm font-bold text-white">{artist.name}</span>
-      <span className="text-[10px] text-gray-500">{artist.group}</span>
+      <span
+        className={`text-sm font-bold ${isDark ? "text-white" : "text-gray-900"}`}
+      >
+        {artist.name}
+      </span>
+      <span className={`text-[10px] ${isDark ? "text-gray-500" : "text-gray-400"}`}>
+        {artist.group}
+      </span>
     </button>
   );
 }

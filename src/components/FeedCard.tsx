@@ -1,4 +1,5 @@
 import { getSourceLabel } from "../utils/sourceIcon";
+import useThemeStore from "../stores/useThemeStore";
 
 interface Props {
   item: {
@@ -15,6 +16,8 @@ interface Props {
 
 export default function FeedCard({ item }: Props) {
   const source = getSourceLabel(item.source);
+  const { theme } = useThemeStore();
+  const isDark = theme === "dark";
 
   const handleClick = () => {
     if (item.url) {
@@ -25,11 +28,14 @@ export default function FeedCard({ item }: Props) {
   return (
     <div
       onClick={handleClick}
-      className={`bg-gray-900/70 rounded-2xl overflow-hidden border border-gray-800 ${
+      className={`rounded-2xl overflow-hidden border ${
         item.url ? "cursor-pointer active:scale-[0.98] transition-transform" : ""
+      } ${
+        isDark
+          ? "bg-gray-900/70 border-gray-800"
+          : "bg-white border-gray-200 shadow-sm"
       }`}
     >
-      {/* 이미지 */}
       {item.imageUrl && (
         <img
           src={item.imageUrl}
@@ -42,32 +48,40 @@ export default function FeedCard({ item }: Props) {
       )}
 
       <div className="p-4 flex flex-col gap-2">
-        {/* 상단 */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="text-xs font-bold text-purple-400">
               {item.artistName}
             </span>
             <span
-              className={`text-[10px] px-2 py-0.5 rounded-full text-gray-300 ${source.bg}`}
+              className={`text-[10px] px-2 py-0.5 rounded-full ${
+                isDark ? "text-gray-300" : "text-gray-600"
+              } ${source.bg}`}
             >
               {source.icon} {source.label}
             </span>
           </div>
-          <span className="text-[10px] text-gray-600">{item.timeAgo}</span>
+          <span className={`text-[10px] ${isDark ? "text-gray-600" : "text-gray-400"}`}>
+            {item.timeAgo}
+          </span>
         </div>
 
-        {/* 제목 */}
-        <h3 className="text-sm font-bold text-white leading-snug">
+        <h3
+          className={`text-sm font-bold leading-snug ${
+            isDark ? "text-white" : "text-gray-900"
+          }`}
+        >
           {item.title}
         </h3>
 
-        {/* 요약 */}
-        <p className="text-xs text-gray-400 leading-relaxed line-clamp-3">
+        <p
+          className={`text-xs leading-relaxed line-clamp-3 ${
+            isDark ? "text-gray-400" : "text-gray-600"
+          }`}
+        >
           {item.summary}
         </p>
 
-        {/* 링크 안내 */}
         {item.url && (
           <span className="text-[10px] text-purple-400 mt-1">
             Tap to read full article →

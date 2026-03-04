@@ -1,1 +1,11 @@
 @import "tailwindcss";
+
+/* 라이트 테마 색상 오버라이드 */
+.light-theme {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f3f4f6;
+  --bg-card: #ffffff;
+  --text-primary: #111827;
+  --text-secondary: #6b7280;
+  --border-color: #e5e7eb;
+}
