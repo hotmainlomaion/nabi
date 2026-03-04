@@ -21,6 +21,16 @@ const en = {
     empty_sub: "Try adding more artists!",
     read_more: "Tap to read full article →",
   },
+  search: {
+    placeholder: "Search artists, news, keywords...",
+    button: "Search",
+    trending: "Trending Now",
+    browse_artists: "Browse Artists",
+    searching: "Searching...",
+    results: '{{count}} results for "{{query}}"',
+    no_results: 'No results found for "{{query}}"',
+    try_again: "Try a different keyword or artist name",
+  },
   shop: {
     title: "NABI Shop",
     items: "{{count}} items",
@@ -62,7 +72,7 @@ const en = {
   },
   nav: {
     feed: "Feed",
-    shop: "Shop",
+    search: "Search",
     alerts: "Alerts",
     saved: "Saved",
     my: "My",

@@ -21,6 +21,16 @@ const es = {
     empty_sub: "¡Intenta agregar más artistas!",
     read_more: "Toca para leer el artículo →",
   },
+  search: {
+    placeholder: "Buscar artistas, noticias, palabras clave...",
+    button: "Buscar",
+    trending: "Tendencias",
+    browse_artists: "Explorar Artistas",
+    searching: "Buscando...",
+    results: '{{count}} resultados para "{{query}}"',
+    no_results: 'No se encontraron resultados para "{{query}}"',
+    try_again: "Intenta con otra palabra clave o nombre de artista",
+  },
   shop: {
     title: "Tienda NABI",
     items: "{{count}} artículos",
@@ -62,7 +72,7 @@ const es = {
   },
   nav: {
     feed: "Feed",
-    shop: "Tienda",
+    search: "Buscar",
     alerts: "Alertas",
     saved: "Guardado",
     my: "Perfil",

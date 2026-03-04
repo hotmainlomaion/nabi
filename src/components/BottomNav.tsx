@@ -13,7 +13,7 @@ export default function BottomNav() {
 
   const tabs = [
     { path: "/feed", icon: "📰", label: t("nav.feed") },
-    { path: "/shop", icon: "🛍️", label: t("nav.shop") },
+    { path: "/search", icon: "🔍", label: t("nav.search") },
     { path: "/notifications", icon: "🔔", label: t("nav.alerts") },
     { path: "/bookmarks", icon: "🔖", label: t("nav.saved") },
     { path: "/profile", icon: "👤", label: t("nav.my") },

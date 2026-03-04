@@ -21,6 +21,16 @@ const ko = {
     empty_sub: "아티스트를 더 추가해 보세요!",
     read_more: "기사 읽기 →",
   },
+  search: {
+    placeholder: "아티스트, 뉴스, 키워드 검색...",
+    button: "검색",
+    trending: "지금 뜨는 검색어",
+    browse_artists: "아티스트 둘러보기",
+    searching: "검색 중...",
+    results: '"{{query}}" 검색 결과 {{count}}건',
+    no_results: '"{{query}}"에 대한 검색 결과가 없습니다',
+    try_again: "다른 키워드나 아티스트 이름을 시도해 보세요",
+  },
   shop: {
     title: "NABI 쇼핑",
     items: "{{count}}개",
@@ -62,7 +72,7 @@ const ko = {
   },
   nav: {
     feed: "피드",
-    shop: "쇼핑",
+    search: "검색",
     alerts: "알림",
     saved: "저장",
     my: "마이",

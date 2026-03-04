@@ -4,10 +4,13 @@ import LoginPage from "./pages/LoginPage";
 import SelectArtistPage from "./pages/SelectArtistPage";
 import FeedPage from "./pages/FeedPage";
 import BookmarksPage from "./pages/BookmarksPage";
-import ShopPage from "./pages/ShopPage";
+import SearchPage from "./pages/SearchPage";
 import NotificationsPage from "./pages/NotificationsPage";
 import ProfilePage from "./pages/ProfilePage";
 import useThemeStore from "./stores/useThemeStore";
+
+// ShopPage는 숨김 처리 (나중에 필요시 복원)
+// import ShopPage from "./pages/ShopPage";
 
 function App() {
   const { theme } = useThemeStore();
@@ -21,9 +24,10 @@ function App() {
           <Route path="/select" element={<SelectArtistPage />} />
           <Route path="/feed" element={<FeedPage />} />
           <Route path="/bookmarks" element={<BookmarksPage />} />
-          <Route path="/shop" element={<ShopPage />} />
+          <Route path="/search" element={<SearchPage />} />
           <Route path="/notifications" element={<NotificationsPage />} />
           <Route path="/profile" element={<ProfilePage />} />
+          {/* <Route path="/shop" element={<ShopPage />} /> */}
         </Routes>
       </BrowserRouter>
     </div>

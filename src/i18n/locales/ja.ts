@@ -21,6 +21,16 @@ const ja = {
     empty_sub: "アーティストを追加してみよう！",
     read_more: "記事を読む →",
   },
+  search: {
+    placeholder: "アーティスト、ニュース、キーワードを検索...",
+    button: "検索",
+    trending: "トレンド",
+    browse_artists: "アーティスト一覧",
+    searching: "検索中...",
+    results: '"{{query}}"の検索結果 {{count}}件',
+    no_results: '"{{query}}"の検索結果はありません',
+    try_again: "別のキーワードやアーティスト名を試してみてください",
+  },
   shop: {
     title: "NABIショップ",
     items: "{{count}}件",
@@ -62,7 +72,7 @@ const ja = {
   },
   nav: {
     feed: "フィード",
-    shop: "ショップ",
+    search: "検索",
     alerts: "通知",
     saved: "保存",
     my: "マイ",
