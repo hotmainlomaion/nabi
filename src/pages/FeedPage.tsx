@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { fetchNewsForArtists } from "../services/newsApi";
 import artists from "../data/artists";
 import adData from "../data/adData";
@@ -13,6 +14,7 @@ import ThemeToggle from "../components/ThemeToggle";
 
 export default function FeedPage() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { selectedArtists } = useArtistStore();
   const { user } = useAuthStore();
   const { theme } = useThemeStore();
@@ -53,7 +55,7 @@ export default function FeedPage() {
     >
       {/* 헤더 */}
       <div
-        className={`sticky top-0 z-10 backdrop-blur-sm px-5 py-4 flex items-center justify-between border-b ${
+        className={`sticky top-0 z-10 backdrop-blur-sm px-5 py-4 flex items-center justify-between border-b animate-fade-in-down ${
           isDark ? "bg-black/90 border-gray-800" : "bg-white/90 border-gray-200"
         }`}
       >
@@ -61,7 +63,7 @@ export default function FeedPage() {
         <div className="flex items-center gap-2">
           <ThemeToggle />
           {user ? (
-            <button onClick={() => navigate("/profile")}>
+            <button onClick={() => navigate("/profile")} className="transition-transform active:scale-90">
               <img
                 src={user.photoURL || ""}
                 alt="profile"
@@ -77,48 +79,50 @@ export default function FeedPage() {
       </div>
 
       {/* 새로고침 */}
-      <div className="px-4 pt-3">
+      <div className="px-4 pt-3 animate-fade-in" style={{ animationDelay: "0.2s" }}>
         <button
           onClick={() => refetch()}
           className={`text-xs px-3 py-1.5 rounded-full active:scale-95 transition-all border ${
             isDark ? "text-gray-500 border-gray-800" : "text-gray-500 border-gray-300"
           }`}
         >
-          🔄 Refresh news
+          🔄 {t("feed.refresh")}
         </button>
       </div>
 
       {/* 피드 */}
-      <div className="flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-4 pb-24">
+      <div className="flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-4 pb-24 scrollbar-hide">
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-20 gap-3">
-            <div className="text-4xl animate-spin">🦋</div>
-            <p className="text-sm text-gray-400">Loading latest news...</p>
+            <div className="text-5xl animate-float">🦋</div>
+            <p className="text-sm text-gray-400 animate-pulse">{t("feed.loading")}</p>
           </div>
         ) : isError ? (
-          <div className="flex flex-col items-center justify-center py-20 gap-3">
+          <div className="flex flex-col items-center justify-center py-20 gap-3 animate-fade-in-up">
             <span className="text-4xl">⚠️</span>
-            <p className="text-sm text-gray-400">Failed to load news. Please try again.</p>
+            <p className="text-sm text-gray-400">{t("feed.error")}</p>
             <button
               onClick={() => refetch()}
-              className="text-xs text-purple-400 border border-purple-400/30 px-4 py-2 rounded-full"
+              className="text-xs text-purple-400 border border-purple-400/30 px-4 py-2 rounded-full active:scale-95 transition-all"
             >
-              Retry
+              {t("feed.retry")}
             </button>
           </div>
         ) : feedWithAds.length > 0 ? (
-          feedWithAds.map((entry) =>
+          feedWithAds.map((entry, i) =>
             entry.type === "ad" ? (
-              <AdBanner key={`ad-${entry.data.id}`} ad={entry.data} />
+              <div key={`ad-${entry.data.id}`} className="card-enter" style={{ animationDelay: `${i * 0.08}s` }}>
+                <AdBanner ad={entry.data} />
+              </div>
             ) : (
-              <FeedCard key={entry.data.id} item={entry.data} />
+              <FeedCard key={entry.data.id} item={entry.data} index={i} />
             )
           )
         ) : (
-          <div className="flex flex-col items-center justify-center text-center py-20">
+          <div className="flex flex-col items-center justify-center text-center py-20 animate-fade-in-up">
             <span className="text-4xl mb-4">🔍</span>
-            <p className="text-gray-400 text-sm">No news found for your selected artists.</p>
-            <p className="text-gray-600 text-xs mt-1">Try adding more artists!</p>
+            <p className="text-gray-400 text-sm">{t("feed.empty_title")}</p>
+            <p className="text-gray-600 text-xs mt-1">{t("feed.empty_sub")}</p>
           </div>
         )}
       </div>

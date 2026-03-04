@@ -24,9 +24,10 @@ interface Props {
     imageUrl?: string;
     url?: string;
   };
+  index?: number;
 }
 
-export default function FeedCard({ item }: Props) {
+export default function FeedCard({ item, index = 0 }: Props) {
   const { t } = useTranslation();
   const source = getSourceLabel(item.source);
   const { theme } = useThemeStore();
@@ -41,6 +42,8 @@ export default function FeedCard({ item }: Props) {
   const [commentCount, setCommentCount] = useState(0);
   const [showComments, setShowComments] = useState(false);
   const [showShare, setShowShare] = useState(false);
+  const [heartAnim, setHeartAnim] = useState(false);
+  const [bookmarkAnim, setBookmarkAnim] = useState(false);
 
   useEffect(() => {
     getLikeCount(item.id).then(setLikeCount);
@@ -56,6 +59,9 @@ export default function FeedCard({ item }: Props) {
       alert(t("common.login_required_like"));
       return;
     }
+    setHeartAnim(true);
+    setTimeout(() => setHeartAnim(false), 600);
+
     toggleLike(item.id, user.uid).then((isNowLiked) => {
       setLiked(isNowLiked);
       setLikeCount((prev) => (isNowLiked ? prev + 1 : prev - 1));
@@ -78,6 +84,9 @@ export default function FeedCard({ item }: Props) {
       alert(t("common.login_required_bookmark"));
       return;
     }
+    setBookmarkAnim(true);
+    setTimeout(() => setBookmarkAnim(false), 400);
+
     if (saved) {
       removeBookmark(user.uid, item.id);
     } else {
@@ -98,23 +107,27 @@ export default function FeedCard({ item }: Props) {
     <>
       <div
         onClick={handleClick}
-        className={`rounded-2xl overflow-hidden border ${
-          item.url ? "cursor-pointer active:scale-[0.98] transition-transform" : ""
+        className={`card-enter rounded-2xl overflow-hidden border ${
+          item.url ? "cursor-pointer" : ""
         } ${
           isDark
-            ? "bg-gray-900/70 border-gray-800"
-            : "bg-white border-gray-200 shadow-sm"
-        }`}
+            ? "bg-gray-900/70 border-gray-800 hover:border-gray-700"
+            : "bg-white border-gray-200 shadow-sm hover:shadow-md"
+        } transition-all duration-300`}
+        style={{ animationDelay: `${index * 0.08}s` }}
       >
+        {/* 이미지 */}
         {item.imageUrl && (
-          <img
-            src={item.imageUrl}
-            alt={item.title}
-            className="w-full h-44 object-cover"
-            onError={(e) => {
-              (e.target as HTMLImageElement).style.display = "none";
-            }}
-          />
+          <div className="overflow-hidden">
+            <img
+              src={item.imageUrl}
+              alt={item.title}
+              className="w-full h-44 object-cover transition-transform duration-500 hover:scale-105"
+              onError={(e) => {
+                (e.target as HTMLImageElement).style.display = "none";
+              }}
+            />
+          </div>
         )}
 
         <div className="p-4 flex flex-col gap-2">
@@ -170,18 +183,20 @@ export default function FeedCard({ item }: Props) {
             {/* 좋아요 */}
             <button
               onClick={handleLike}
-              className={`flex items-center gap-1.5 text-xs transition-all active:scale-110 ${
+              className={`flex items-center gap-1.5 text-xs transition-all ${
                 liked ? "text-red-500" : isDark ? "text-gray-500" : "text-gray-400"
               }`}
             >
-              <span className="text-base">{liked ? "❤️" : "🤍"}</span>
+              <span className={`text-base ${heartAnim ? "animate-heart" : ""}`}>
+                {liked ? "❤️" : "🤍"}
+              </span>
               {likeCount > 0 && <span>{likeCount}</span>}
             </button>
 
             {/* 댓글 */}
             <button
               onClick={handleComment}
-              className={`flex items-center gap-1.5 text-xs transition-all active:scale-110 ${
+              className={`flex items-center gap-1.5 text-xs transition-all active:scale-125 ${
                 isDark ? "text-gray-500" : "text-gray-400"
               }`}
             >
@@ -192,7 +207,7 @@ export default function FeedCard({ item }: Props) {
             {/* 공유 */}
             <button
               onClick={handleShare}
-              className={`flex items-center gap-1.5 text-xs transition-all active:scale-110 ${
+              className={`flex items-center gap-1.5 text-xs transition-all active:scale-125 ${
                 isDark ? "text-gray-500" : "text-gray-400"
               }`}
             >
@@ -202,7 +217,9 @@ export default function FeedCard({ item }: Props) {
             {/* 북마크 */}
             <button
               onClick={handleBookmark}
-              className={`text-base transition-all active:scale-110 ${
+              className={`text-base transition-all ${
+                bookmarkAnim ? "animate-pop-in" : ""
+              } ${
                 saved ? "text-yellow-400" : isDark ? "text-gray-500" : "text-gray-300"
               }`}
             >
@@ -212,7 +229,6 @@ export default function FeedCard({ item }: Props) {
         </div>
       </div>
 
-      {/* 댓글 모달 */}
       {showComments && (
         <CommentModal
           articleId={item.id}
@@ -223,12 +239,8 @@ export default function FeedCard({ item }: Props) {
         />
       )}
 
-      {/* 공유 모달 */}
       {showShare && (
-        <ShareCard
-          item={item}
-          onClose={() => setShowShare(false)}
-        />
+        <ShareCard item={item} onClose={() => setShowShare(false)} />
       )}
     </>
   );

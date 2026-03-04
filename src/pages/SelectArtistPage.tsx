@@ -29,7 +29,7 @@ export default function SelectArtistPage() {
         isDark ? "bg-black text-white" : "bg-white text-gray-900"
       }`}
     >
-      <div className="px-5 pt-12 pb-4 flex items-start justify-between">
+      <div className="px-5 pt-12 pb-4 flex items-start justify-between animate-fade-in-down">
         <div>
           <h1 className="text-2xl font-bold">{t("select.title")}</h1>
           <p className={`text-sm mt-1 ${isDark ? "text-gray-400" : "text-gray-500"}`}>
@@ -39,14 +39,15 @@ export default function SelectArtistPage() {
         <ThemeToggle />
       </div>
 
-      <div className="flex-1 overflow-y-auto px-5 pb-28">
+      <div className="flex-1 overflow-y-auto px-5 pb-28 scrollbar-hide">
         <div className="grid grid-cols-3 gap-3">
-          {artists.map((artist) => (
+          {artists.map((artist, i) => (
             <ArtistCard
               key={artist.id}
               artist={artist}
               selected={selectedArtists.includes(artist.id)}
               onToggle={toggleArtist}
+              index={i}
             />
           ))}
         </div>
@@ -60,9 +61,9 @@ export default function SelectArtistPage() {
         <button
           disabled={selectedArtists.length === 0}
           onClick={handleContinue}
-          className={`w-full py-4 rounded-2xl text-base font-bold transition-all ${
+          className={`w-full py-4 rounded-2xl text-base font-bold transition-all duration-300 ${
             selectedArtists.length > 0
-              ? "bg-purple-600 text-white active:scale-95"
+              ? "bg-purple-600 text-white active:scale-95 shadow-lg shadow-purple-500/20"
               : isDark
               ? "bg-gray-800 text-gray-600 cursor-not-allowed"
               : "bg-gray-200 text-gray-400 cursor-not-allowed"

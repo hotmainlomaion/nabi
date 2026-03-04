@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import useThemeStore from "../stores/useThemeStore";
 import useAuthStore from "../stores/useAuthStore";
 import {
@@ -13,6 +14,7 @@ interface Props {
 }
 
 export default function CommentModal({ articleId, onClose }: Props) {
+  const { t } = useTranslation();
   const { theme } = useThemeStore();
   const { user } = useAuthStore();
   const isDark = theme === "dark";
@@ -61,49 +63,45 @@ export default function CommentModal({ articleId, onClose }: Props) {
   return (
     <div className="fixed inset-0 z-50 flex flex-col justify-end">
       {/* 배경 오버레이 */}
-      <div className="absolute inset-0 bg-black/60" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/60 animate-fade-in" onClick={onClose} />
 
       {/* 모달 */}
       <div
-        className={`relative rounded-t-3xl max-h-[75vh] flex flex-col ${
+        className={`relative rounded-t-3xl max-h-[75vh] flex flex-col animate-slide-up ${
           isDark ? "bg-gray-900" : "bg-white"
         }`}
       >
         {/* 핸들 */}
         <div className="flex justify-center py-3">
-          <div
-            className={`w-10 h-1 rounded-full ${
-              isDark ? "bg-gray-700" : "bg-gray-300"
-            }`}
-          />
+          <div className={`w-10 h-1 rounded-full ${isDark ? "bg-gray-700" : "bg-gray-300"}`} />
         </div>
 
         {/* 헤더 */}
         <div className="px-5 pb-3 flex items-center justify-between">
           <h2 className={`font-bold ${isDark ? "text-white" : "text-gray-900"}`}>
-            Comments ({comments.length})
+            {t("comments.title")} ({comments.length})
           </h2>
-          <button onClick={onClose} className="text-gray-500 text-lg">
+          <button onClick={onClose} className="text-gray-500 text-lg active:scale-90 transition-transform">
             ✕
           </button>
         </div>
 
         {/* 댓글 목록 */}
-        <div className="flex-1 overflow-y-auto px-5 pb-4">
+        <div className="flex-1 overflow-y-auto px-5 pb-4 scrollbar-hide">
           {loading ? (
             <div className="flex items-center justify-center py-10">
-              <span className="text-2xl animate-spin">🦋</span>
+              <span className="text-2xl animate-float">🦋</span>
             </div>
           ) : comments.length > 0 ? (
             <div className="flex flex-col gap-4">
-              {comments.map((c) => (
-                <div key={c.id} className="flex gap-3">
+              {comments.map((c, i) => (
+                <div
+                  key={c.id}
+                  className="flex gap-3 animate-fade-in-up"
+                  style={{ animationDelay: `${i * 0.05}s` }}
+                >
                   {c.photoURL ? (
-                    <img
-                      src={c.photoURL}
-                      alt=""
-                      className="w-8 h-8 rounded-full flex-shrink-0"
-                    />
+                    <img src={c.photoURL} alt="" className="w-8 h-8 rounded-full flex-shrink-0" />
                   ) : (
                     <div
                       className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${
@@ -115,22 +113,12 @@ export default function CommentModal({ articleId, onClose }: Props) {
                   )}
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
-                      <span
-                        className={`text-xs font-bold ${
-                          isDark ? "text-white" : "text-gray-900"
-                        }`}
-                      >
+                      <span className={`text-xs font-bold ${isDark ? "text-white" : "text-gray-900"}`}>
                         {c.displayName}
                       </span>
-                      <span className="text-[10px] text-gray-500">
-                        {formatTime(c.createdAt)}
-                      </span>
+                      <span className="text-[10px] text-gray-500">{formatTime(c.createdAt)}</span>
                     </div>
-                    <p
-                      className={`text-xs mt-0.5 ${
-                        isDark ? "text-gray-300" : "text-gray-700"
-                      }`}
-                    >
+                    <p className={`text-xs mt-0.5 ${isDark ? "text-gray-300" : "text-gray-700"}`}>
                       {c.text}
                     </p>
                   </div>
@@ -138,11 +126,9 @@ export default function CommentModal({ articleId, onClose }: Props) {
               ))}
             </div>
           ) : (
-            <div className="text-center py-10">
+            <div className="text-center py-10 animate-fade-in">
               <span className="text-3xl">💬</span>
-              <p className="text-sm text-gray-500 mt-2">
-                No comments yet. Be the first!
-              </p>
+              <p className="text-sm text-gray-500 mt-2">{t("comments.empty")}</p>
             </div>
           )}
         </div>
@@ -159,8 +145,8 @@ export default function CommentModal({ articleId, onClose }: Props) {
               value={text}
               onChange={(e) => setText(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handlePost()}
-              placeholder="Write a comment..."
-              className={`flex-1 text-sm px-4 py-2.5 rounded-full outline-none ${
+              placeholder={t("comments.placeholder")}
+              className={`flex-1 text-sm px-4 py-2.5 rounded-full outline-none transition-all focus:ring-2 focus:ring-purple-500/30 ${
                 isDark
                   ? "bg-gray-800 text-white placeholder-gray-500"
                   : "bg-gray-100 text-gray-900 placeholder-gray-400"
@@ -177,18 +163,12 @@ export default function CommentModal({ articleId, onClose }: Props) {
                   : "bg-gray-200 text-gray-400"
               }`}
             >
-              {posting ? "..." : "Post"}
+              {posting ? "..." : t("comments.post")}
             </button>
           </div>
         ) : (
-          <div
-            className={`px-4 py-4 border-t text-center ${
-              isDark ? "border-gray-800" : "border-gray-200"
-            }`}
-          >
-            <p className="text-sm text-gray-500">
-              Please login to leave a comment
-            </p>
+          <div className={`px-4 py-4 border-t text-center ${isDark ? "border-gray-800" : "border-gray-200"}`}>
+            <p className="text-sm text-gray-500">{t("comments.login_prompt")}</p>
           </div>
         )}
       </div>
