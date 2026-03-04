@@ -76,73 +76,97 @@ export default function FeedCard({ item, index = 0 }: Props) {
     <>
       <div
         onClick={handleClick}
-        className={`card-enter flex gap-3 p-4 border-b transition-all duration-200 ${
-          item.url ? "cursor-pointer active:bg-gray-50" : ""
-        } ${isDark ? "border-[#1E1E2E] active:bg-[#111118]" : "border-gray-100"}`}
+        className={`card-enter rounded-2xl overflow-hidden border transition-all duration-200 ${
+          item.url ? "cursor-pointer active:scale-[0.98]" : ""
+        } ${
+          isDark
+            ? "bg-[#111118] border-[#1E1E2E]"
+            : "bg-white border-gray-100 shadow-sm"
+        }`}
         style={{ animationDelay: `${index * 0.06}s` }}
       >
-        {/* 썸네일 (좌측) */}
-        {item.imageUrl ? (
-          <div className="w-20 h-20 flex-shrink-0 rounded-xl overflow-hidden">
+        {/* 이미지 (풀 너비) */}
+        {item.imageUrl && (
+          <div className="overflow-hidden">
             <img
               src={item.imageUrl}
-              alt=""
-              className="w-full h-full object-cover"
-              onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+              alt={item.title}
+              className="w-full h-48 object-cover transition-transform duration-500 hover:scale-105"
+              onError={(e) => {
+                (e.target as HTMLImageElement).style.display = "none";
+              }}
             />
-          </div>
-        ) : (
-          <div className={`w-20 h-20 flex-shrink-0 rounded-xl flex items-center justify-center text-2xl ${isDark ? "bg-[#111118]" : "bg-gray-50"}`}>
-            {source.icon}
           </div>
         )}
 
-        {/* 텍스트 (우측) */}
-        <div className="flex-1 min-w-0 flex flex-col justify-between">
-          <div>
-            <h3 className={`text-sm font-bold leading-snug line-clamp-2 ${isDark ? "text-white" : "text-gray-900"}`}>
-              {item.title}
-            </h3>
-            <p className={`text-xs mt-1 line-clamp-1 ${isDark ? "text-gray-500" : "text-gray-500"}`}>
-              {item.summary}
-            </p>
-          </div>
-
-          {/* 메타 + 액션 */}
-          <div className="flex items-center justify-between mt-2">
+        {/* 콘텐츠 */}
+        <div className="p-4 flex flex-col gap-2.5">
+          {/* 아티스트 + 소스 + 시간 */}
+          <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className={`text-[10px] ${isDark ? "text-gray-600" : "text-gray-400"}`}>
-                {item.timeAgo}
-              </span>
-              <span className="text-[10px] text-[#E91E63] font-semibold">
+              <span className="text-xs font-bold text-[#E91E63]">
                 {item.artistName}
               </span>
+              <span
+                className={`text-[10px] px-2 py-0.5 rounded-full ${
+                  isDark ? "bg-[#1E1E2E] text-gray-400" : "bg-gray-100 text-gray-500"
+                }`}
+              >
+                {source.icon} {source.label}
+              </span>
             </div>
+            <span className={`text-[10px] ${isDark ? "text-gray-600" : "text-gray-400"}`}>
+              {item.timeAgo}
+            </span>
+          </div>
 
-            <div className="flex items-center gap-3">
-              {/* 좋아요 */}
-              <button onClick={handleLike} className="flex items-center gap-1">
-                <span className={`text-sm ${heartAnim ? "animate-heart" : ""} ${liked ? "text-[#E91E63]" : isDark ? "text-gray-600" : "text-gray-300"}`}>
-                  {liked ? "♥" : "♡"}
-                </span>
-                {likeCount > 0 && <span className={`text-[10px] ${isDark ? "text-gray-600" : "text-gray-400"}`}>{likeCount}</span>}
-              </button>
+          {/* 제목 */}
+          <h3 className={`text-[15px] font-bold leading-snug ${isDark ? "text-white" : "text-gray-900"}`}>
+            {item.title}
+          </h3>
 
-              {/* 댓글 */}
-              <button onClick={handleComment} className="flex items-center gap-1">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={isDark ? "#4B5563" : "#D1D5DB"} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-                </svg>
-                {commentCount > 0 && <span className={`text-[10px] ${isDark ? "text-gray-600" : "text-gray-400"}`}>{commentCount}</span>}
-              </button>
+          {/* 요약 (3줄) */}
+          <p className={`text-[13px] leading-relaxed line-clamp-3 ${isDark ? "text-gray-400" : "text-gray-600"}`}>
+            {item.summary}
+          </p>
 
-              {/* 북마크 */}
-              <button onClick={handleBookmark}>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill={saved ? "#E91E63" : "none"} stroke={saved ? "#E91E63" : isDark ? "#4B5563" : "#D1D5DB"} strokeWidth="1.5">
-                  <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
-                </svg>
-              </button>
-            </div>
+          {/* 액션 바 */}
+          <div className={`flex items-center justify-between pt-3 mt-1 border-t ${isDark ? "border-[#1E1E2E]" : "border-gray-100"}`}>
+            {/* 좋아요 */}
+            <button onClick={handleLike} className="flex items-center gap-1.5">
+              <span className={`text-base ${heartAnim ? "animate-heart" : ""} ${liked ? "text-[#E91E63]" : isDark ? "text-gray-600" : "text-gray-300"}`}>
+                {liked ? "♥" : "♡"}
+              </span>
+              {likeCount > 0 && (
+                <span className={`text-xs ${isDark ? "text-gray-500" : "text-gray-400"}`}>{likeCount}</span>
+              )}
+            </button>
+
+            {/* 댓글 */}
+            <button onClick={handleComment} className="flex items-center gap-1.5">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={isDark ? "#4B5563" : "#D1D5DB"} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+              </svg>
+              {commentCount > 0 && (
+                <span className={`text-xs ${isDark ? "text-gray-500" : "text-gray-400"}`}>{commentCount}</span>
+              )}
+            </button>
+
+            {/* 공유 */}
+            <button onClick={handleShare}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={isDark ? "#4B5563" : "#D1D5DB"} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
+                <polyline points="16 6 12 2 8 6" />
+                <line x1="12" y1="2" x2="12" y2="15" />
+              </svg>
+            </button>
+
+            {/* 북마크 */}
+            <button onClick={handleBookmark}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill={saved ? "#E91E63" : "none"} stroke={saved ? "#E91E63" : isDark ? "#4B5563" : "#D1D5DB"} strokeWidth="1.5">
+                <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
+              </svg>
+            </button>
           </div>
         </div>
       </div>
