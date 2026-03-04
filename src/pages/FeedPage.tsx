@@ -1,7 +1,5 @@
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { signOut } from "firebase/auth";
-import { auth } from "../firebase";
 import { fetchNewsForArtists } from "../services/newsApi";
 import artists from "../data/artists";
 import adData from "../data/adData";
@@ -16,7 +14,7 @@ import ThemeToggle from "../components/ThemeToggle";
 export default function FeedPage() {
   const navigate = useNavigate();
   const { selectedArtists } = useArtistStore();
-  const { user, clearUser } = useAuthStore();
+  const { user } = useAuthStore();
   const { theme } = useThemeStore();
   const isDark = theme === "dark";
 
@@ -30,12 +28,6 @@ export default function FeedPage() {
     enabled: selectedArtists.length > 0,
     staleTime: 5 * 60 * 1000,
   });
-
-  const handleLogout = async () => {
-    await signOut(auth);
-    clearUser();
-    navigate("/");
-  };
 
   const buildFeedWithAds = () => {
     if (!newsItems || newsItems.length === 0) return [];
@@ -69,7 +61,7 @@ export default function FeedPage() {
         <div className="flex items-center gap-2">
           <ThemeToggle />
           {user ? (
-            <button onClick={handleLogout}>
+            <button onClick={() => navigate("/profile")}>
               <img
                 src={user.photoURL || ""}
                 alt="profile"
@@ -77,7 +69,7 @@ export default function FeedPage() {
               />
             </button>
           ) : (
-            <button onClick={() => navigate("/")} className="text-xs text-gray-500">
+            <button onClick={() => navigate("/login")} className="text-xs text-gray-500">
               Login
             </button>
           )}

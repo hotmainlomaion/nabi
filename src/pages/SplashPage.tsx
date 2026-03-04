@@ -1,9 +1,11 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import useThemeStore from "../stores/useThemeStore";
 
 export default function SplashPage() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { theme } = useThemeStore();
 
   useEffect(() => {
@@ -28,7 +30,7 @@ export default function SplashPage() {
         NABI
       </h1>
       <p className="text-sm text-gray-500 tracking-wide">
-        Your K-POP universe, translated
+        {t("splash.tagline")}
       </p>
     </div>
   );
