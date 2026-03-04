@@ -1,11 +1,18 @@
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import SplashPage from "./pages/SplashPage";
+import SelectArtistPage from "./pages/SelectArtistPage";
+import FeedPage from "./pages/FeedPage";
+
 function App() {
   return (
-    <div className="min-h-screen bg-black flex items-center justify-center">
-      <h1 className="text-4xl font-bold text-purple-400">
-        🦋 NABI
-      </h1>
-    </div>
-  )
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<SplashPage />} />
+        <Route path="/select" element={<SelectArtistPage />} />
+        <Route path="/feed" element={<FeedPage />} />
+      </Routes>
+    </BrowserRouter>
+  );
 }
 
-export default App
+export default App;
