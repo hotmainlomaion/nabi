@@ -2,6 +2,7 @@ import { signInWithPopup } from "firebase/auth";
 import { auth, googleProvider } from "../firebase";
 import useAuthStore from "../stores/useAuthStore";
 import useArtistStore from "../stores/useArtistStore";
+import useBookmarkStore from "../stores/useBookmarkStore";
 import useThemeStore from "../stores/useThemeStore";
 import { useNavigate } from "react-router-dom";
 import ThemeToggle from "../components/ThemeToggle";
@@ -9,6 +10,7 @@ import ThemeToggle from "../components/ThemeToggle";
 export default function LoginPage() {
   const { setUser } = useAuthStore();
   const { loadFromFirestore } = useArtistStore();
+  const { loadBookmarks } = useBookmarkStore();
   const { theme } = useThemeStore();
   const navigate = useNavigate();
 
@@ -23,6 +25,7 @@ export default function LoginPage() {
         email: u.email,
       });
       await loadFromFirestore(u.uid);
+      await loadBookmarks(u.uid);
       navigate("/select");
     } catch (error) {
       console.error("Login failed:", error);
@@ -37,12 +40,10 @@ export default function LoginPage() {
         isDark ? "bg-black" : "bg-white"
       }`}
     >
-      {/* 테마 토글 */}
       <div className="absolute top-5 right-5">
         <ThemeToggle />
       </div>
 
-      {/* 로고 */}
       <div className="flex flex-col items-center gap-3">
         <span className="text-6xl">🦋</span>
         <h1
@@ -57,13 +58,10 @@ export default function LoginPage() {
         </p>
       </div>
 
-      {/* 구글 로그인 버튼 */}
       <button
         onClick={handleGoogleLogin}
         className={`flex items-center gap-3 font-semibold px-6 py-3.5 rounded-2xl active:scale-95 transition-all ${
-          isDark
-            ? "bg-white text-black"
-            : "bg-gray-900 text-white"
+          isDark ? "bg-white text-black" : "bg-gray-900 text-white"
         }`}
       >
         <svg className="w-5 h-5" viewBox="0 0 24 24">
@@ -75,7 +73,6 @@ export default function LoginPage() {
         Continue with Google
       </button>
 
-      {/* 게스트 모드 */}
       <button
         onClick={() => navigate("/select")}
         className="text-sm text-gray-500 underline underline-offset-4"

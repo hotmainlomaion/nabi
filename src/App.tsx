@@ -3,6 +3,8 @@ import SplashPage from "./pages/SplashPage";
 import LoginPage from "./pages/LoginPage";
 import SelectArtistPage from "./pages/SelectArtistPage";
 import FeedPage from "./pages/FeedPage";
+import BookmarksPage from "./pages/BookmarksPage";
+import ShopPage from "./pages/ShopPage";
 import useThemeStore from "./stores/useThemeStore";
 
 function App() {
@@ -16,6 +18,8 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/select" element={<SelectArtistPage />} />
           <Route path="/feed" element={<FeedPage />} />
+          <Route path="/bookmarks" element={<BookmarksPage />} />
+          <Route path="/shop" element={<ShopPage />} />
         </Routes>
       </BrowserRouter>
     </div>
