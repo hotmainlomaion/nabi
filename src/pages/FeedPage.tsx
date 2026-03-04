@@ -1,27 +1,57 @@
 import { useNavigate } from "react-router-dom";
+import { signOut } from "firebase/auth";
+import { auth } from "../firebase";
 import feedData from "../data/feedData";
 import FeedCard from "../components/FeedCard";
 import useArtistStore from "../stores/useArtistStore";
+import useAuthStore from "../stores/useAuthStore";
 
 export default function FeedPage() {
   const navigate = useNavigate();
   const { selectedArtists } = useArtistStore();
+  const { user, clearUser } = useAuthStore();
 
   const filteredFeed = feedData.filter((item) =>
     selectedArtists.includes(item.artistId)
   );
+
+  const handleLogout = async () => {
+    await signOut(auth);
+    clearUser();
+    navigate("/");
+  };
 
   return (
     <div className="min-h-screen bg-black text-white flex flex-col">
       {/* 헤더 */}
       <div className="sticky top-0 z-10 bg-black/90 backdrop-blur-sm border-b border-gray-800 px-5 py-4 flex items-center justify-between">
         <h1 className="text-xl font-bold">🦋 NABI</h1>
-        <button
-          onClick={() => navigate("/select")}
-          className="text-xs text-purple-400 border border-purple-400/30 px-3 py-1.5 rounded-full"
-        >
-          Edit Artists
-        </button>
+
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => navigate("/select")}
+            className="text-xs text-purple-400 border border-purple-400/30 px-3 py-1.5 rounded-full"
+          >
+            Edit Artists
+          </button>
+
+          {user ? (
+            <button onClick={handleLogout}>
+              <img
+                src={user.photoURL || ""}
+                alt="profile"
+                className="w-8 h-8 rounded-full border-2 border-purple-500"
+              />
+            </button>
+          ) : (
+            <button
+              onClick={() => navigate("/")}
+              className="text-xs text-gray-500"
+            >
+              Login
+            </button>
+          )}
+        </div>
       </div>
 
       {/* 피드 카드 목록 */}

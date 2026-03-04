@@ -6,7 +6,7 @@ export default function SplashPage() {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      navigate("/select");
+      navigate("/login");
     }, 2500);
     return () => clearTimeout(timer);
   }, [navigate]);
