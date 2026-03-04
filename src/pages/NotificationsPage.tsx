@@ -1,30 +1,22 @@
-import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import useNotificationStore from "../stores/useNotificationStore";
 import useAuthStore from "../stores/useAuthStore";
 import useThemeStore from "../stores/useThemeStore";
 import BottomNav from "../components/BottomNav";
 
+const typeConfig: Record<string, { icon: string; color: string; bg: string; darkBg: string }> = {
+  news: { icon: "⚡", color: "#E91E63", bg: "bg-pink-50", darkBg: "bg-pink-950/30" },
+  community: { icon: "♥", color: "#E91E63", bg: "bg-pink-50", darkBg: "bg-pink-950/30" },
+  shop: { icon: "📈", color: "#9C27B0", bg: "bg-purple-50", darkBg: "bg-purple-950/30" },
+  system: { icon: "🔔", color: "#607D8B", bg: "bg-gray-100", darkBg: "bg-gray-800/50" },
+};
+
 export default function NotificationsPage() {
-  const navigate = useNavigate();
+  const { t } = useTranslation();
   const { notifications, markAsRead, markAllRead } = useNotificationStore();
   const { user } = useAuthStore();
   const { theme } = useThemeStore();
   const isDark = theme === "dark";
-
-  const getTypeIcon = (type: string) => {
-    switch (type) {
-      case "news":
-        return "📰";
-      case "community":
-        return "💬";
-      case "shop":
-        return "🛍️";
-      case "system":
-        return "🦋";
-      default:
-        return "🔔";
-    }
-  };
 
   const formatTime = (dateStr: string) => {
     const date = new Date(dateStr);
@@ -36,115 +28,73 @@ export default function NotificationsPage() {
     return `${Math.floor(diffHour / 24)}d ago`;
   };
 
-  const handleNotifClick = async (notif: any) => {
-    if (user && !notif.read) {
-      await markAsRead(user.uid, notif.id);
-    }
-    if (notif.linkUrl) {
-      window.open(notif.linkUrl, "_blank");
-    }
+  const handleClick = async (notif: any) => {
+    if (user && !notif.read) await markAsRead(user.uid, notif.id);
+    if (notif.linkUrl) window.open(notif.linkUrl, "_blank");
   };
 
   return (
-    <div
-      className={`min-h-screen flex flex-col ${
-        isDark ? "bg-black text-white" : "bg-gray-50 text-gray-900"
-      }`}
-    >
+    <div className={`min-h-screen flex flex-col ${isDark ? "dark-vars bg-[#0A0A0F] text-white" : "bg-white text-gray-900"}`}>
       {/* 헤더 */}
-      <div
-        className={`sticky top-0 z-10 backdrop-blur-sm px-5 py-4 flex items-center justify-between border-b ${
-          isDark ? "bg-black/90 border-gray-800" : "bg-white/90 border-gray-200"
-        }`}
-      >
-        <h1 className="text-xl font-bold">🔔 Notifications</h1>
-        {notifications.some((n) => !n.read) && user && (
-          <button
-            onClick={() => markAllRead(user.uid)}
-            className="text-xs text-purple-400"
-          >
-            Mark all read
-          </button>
-        )}
+      <div className={`sticky top-0 z-10 backdrop-blur-md px-5 pt-12 pb-4 border-b ${isDark ? "bg-[#0A0A0F]/95 border-[#1E1E2E]" : "bg-white/95 border-gray-100"}`}>
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-black">{t("notifications.title")}</h1>
+          {notifications.some((n) => !n.read) && user && (
+            <button onClick={() => markAllRead(user.uid)} className="text-xs text-[#E91E63] font-semibold">
+              {t("notifications.mark_all")}
+            </button>
+          )}
+        </div>
       </div>
 
       {/* 알림 목록 */}
-      <div className="flex-1 overflow-y-auto pb-24">
+      <div className="flex-1 overflow-y-auto px-5 py-4 pb-24 flex flex-col gap-3 scrollbar-hide">
         {notifications.length > 0 ? (
-          notifications.map((notif) => (
-            <div
-              key={notif.id}
-              onClick={() => handleNotifClick(notif)}
-              className={`px-5 py-4 flex gap-3 border-b cursor-pointer active:opacity-70 transition-all ${
-                notif.read
-                  ? isDark
-                    ? "border-gray-900"
-                    : "border-gray-100"
-                  : isDark
-                  ? "bg-purple-950/20 border-gray-800"
-                  : "bg-purple-50 border-gray-200"
-              }`}
-            >
-              {/* 아이콘 */}
+          notifications.map((notif, i) => {
+            const config = typeConfig[notif.type] || typeConfig.system;
+            return (
               <div
-                className={`w-10 h-10 rounded-full flex items-center justify-center text-lg flex-shrink-0 ${
-                  isDark ? "bg-gray-800" : "bg-gray-200"
+                key={notif.id}
+                onClick={() => handleClick(notif)}
+                className={`card-enter rounded-2xl p-4 flex gap-3 cursor-pointer transition-all active:scale-[0.98] ${
+                  notif.read
+                    ? isDark ? "bg-[#111118]" : "bg-white border border-gray-100"
+                    : isDark ? config.darkBg + " border border-[#E91E63]/20" : config.bg + " border border-pink-100"
                 }`}
+                style={{ animationDelay: `${i * 0.05}s` }}
               >
-                {getTypeIcon(notif.type)}
-              </div>
-
-              {/* 내용 */}
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-bold text-purple-400">
-                    {notif.artistName}
-                  </span>
-                  <span
-                    className={`text-[10px] ${
-                      isDark ? "text-gray-600" : "text-gray-400"
-                    }`}
-                  >
-                    {formatTime(notif.createdAt)}
-                  </span>
-                  {!notif.read && (
-                    <span className="w-2 h-2 rounded-full bg-purple-500" />
-                  )}
+                {/* 아이콘 */}
+                <div
+                  className="w-10 h-10 rounded-full flex items-center justify-center text-lg flex-shrink-0"
+                  style={{ backgroundColor: config.color + "15", color: config.color }}
+                >
+                  {config.icon}
                 </div>
-                <p
-                  className={`text-sm font-semibold mt-0.5 ${
-                    isDark ? "text-white" : "text-gray-900"
-                  }`}
-                >
-                  {notif.title}
-                </p>
-                <p
-                  className={`text-xs mt-0.5 line-clamp-2 ${
-                    isDark ? "text-gray-400" : "text-gray-600"
-                  }`}
-                >
-                  {notif.body}
-                </p>
+
+                {/* 텍스트 */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between">
+                    <p className={`text-sm font-bold ${isDark ? "text-white" : "text-gray-900"}`}>
+                      {notif.title}
+                    </p>
+                    <div className="flex items-center gap-2 flex-shrink-0 ml-2">
+                      <span className={`text-[10px] ${isDark ? "text-gray-600" : "text-gray-400"}`}>
+                        {formatTime(notif.createdAt)}
+                      </span>
+                      {!notif.read && <span className="w-2 h-2 rounded-full bg-[#E91E63]" />}
+                    </div>
+                  </div>
+                  <p className={`text-xs mt-0.5 line-clamp-2 ${isDark ? "text-gray-400" : "text-gray-500"}`}>
+                    {notif.body}
+                  </p>
+                </div>
               </div>
-            </div>
-          ))
+            );
+          })
         ) : (
-          <div className="flex flex-col items-center justify-center text-center py-20">
+          <div className="flex flex-col items-center justify-center text-center py-20 animate-fade-in-up">
             <span className="text-4xl mb-4">🔔</span>
-            <p
-              className={`text-sm ${
-                isDark ? "text-gray-400" : "text-gray-500"
-              }`}
-            >
-              No notifications yet.
-            </p>
-            <p
-              className={`text-xs mt-1 ${
-                isDark ? "text-gray-600" : "text-gray-400"
-              }`}
-            >
-              We'll let you know when something exciting happens!
-            </p>
+            <p className={`text-sm ${isDark ? "text-gray-400" : "text-gray-500"}`}>{t("notifications.empty_title")}</p>
           </div>
         )}
       </div>

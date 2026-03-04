@@ -16,215 +16,114 @@ export default function SearchPage() {
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
 
-  // 인기 검색어 (빠른 탭)
   const trending = [
-    { label: "BTS", emoji: "💜" },
-    { label: "BLACKPINK", emoji: "🖤" },
-    { label: "NewJeans", emoji: "🐰" },
-    { label: "aespa", emoji: "🪐" },
-    { label: "Stray Kids", emoji: "🧭" },
-    { label: "LE SSERAFIM", emoji: "🔥" },
-    { label: "comeback", emoji: "🎵" },
-    { label: "concert", emoji: "🎫" },
-    { label: "world tour", emoji: "🌍" },
-    { label: "album", emoji: "💿" },
+    "#BTS_Comeback", "#NewJeans_Paris", "#LISA_1Billion",
+    "#StrayKids_Tour", "#MAMA2026", "#Inkigayo",
   ];
 
-  const handleSearch = async (searchQuery?: string) => {
-    const q = searchQuery || query;
-    if (!q.trim()) return;
-
+  const handleSearch = async (q?: string) => {
+    const searchQ = q || query;
+    if (!searchQ.trim()) return;
     setLoading(true);
     setSearched(true);
-
     try {
-      // 아티스트 이름과 매칭 확인
-      const matchedArtist = artists.find(
-        (a) => a.name.toLowerCase().includes(q.toLowerCase())
-      );
-
-      if (matchedArtist) {
-        // 아티스트 검색: 해당 아티스트의 뉴스 가져오기
-        const news = await fetchNewsForArtists([
-          { id: matchedArtist.id, name: matchedArtist.name },
-        ]);
-        setResults(news);
-      } else {
-        // 키워드 검색: 일반 K-POP 뉴스에서 검색
-        const news = await fetchNewsForArtists([
-          { id: "search", name: q },
-        ]);
-        setResults(news);
-      }
-    } catch (err) {
-      console.error("Search failed:", err);
-      setResults([]);
-    }
-
+      const cleaned = searchQ.replace("#", "").replace(/_/g, " ");
+      const matched = artists.find((a) => a.name.toLowerCase().includes(cleaned.toLowerCase()));
+      const news = matched
+        ? await fetchNewsForArtists([{ id: matched.id, name: matched.name }])
+        : await fetchNewsForArtists([{ id: "search", name: cleaned }]);
+      setResults(news);
+    } catch { setResults([]); }
     setLoading(false);
   };
 
-  const handleTrendingClick = (label: string) => {
-    setQuery(label);
-    handleSearch(label);
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      handleSearch();
-    }
-  };
-
   return (
-    <div
-      className={`min-h-screen flex flex-col ${
-        isDark ? "bg-black text-white" : "bg-gray-50 text-gray-900"
-      }`}
-    >
-      {/* 헤더 & 검색바 */}
-      <div
-        className={`sticky top-0 z-10 backdrop-blur-sm border-b px-4 pt-4 pb-3 ${
-          isDark ? "bg-black/90 border-gray-800" : "bg-white/90 border-gray-200"
-        }`}
-      >
-        <div className="flex items-center gap-3">
-          <div
-            className={`flex-1 flex items-center gap-2 px-4 py-2.5 rounded-2xl ${
-              isDark ? "bg-gray-800" : "bg-gray-100"
-            }`}
-          >
-            <span className="text-gray-500">🔍</span>
-            <input
-              type="text"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder={t("search.placeholder")}
-              className={`flex-1 text-sm bg-transparent outline-none ${
-                isDark
-                  ? "text-white placeholder-gray-500"
-                  : "text-gray-900 placeholder-gray-400"
-              }`}
-            />
-            {query && (
-              <button
-                onClick={() => {
-                  setQuery("");
-                  setResults([]);
-                  setSearched(false);
-                }}
-                className="text-gray-500 text-xs"
-              >
-                ✕
-              </button>
-            )}
-          </div>
-          <button
-            onClick={() => handleSearch()}
-            className="text-sm font-bold text-purple-400 px-3 py-2.5 active:scale-95 transition-all"
-          >
-            {t("search.button")}
-          </button>
+    <div className={`min-h-screen flex flex-col ${isDark ? "dark-vars bg-[#0A0A0F] text-white" : "bg-white text-gray-900"}`}>
+      {/* 헤더 */}
+      <div className={`sticky top-0 z-10 backdrop-blur-md border-b px-5 pt-12 pb-4 ${isDark ? "bg-[#0A0A0F]/95 border-[#1E1E2E]" : "bg-white/95 border-gray-100"}`}>
+        <h1 className="text-2xl font-black mb-4">Discover</h1>
+
+        {/* 검색바 */}
+        <div className={`flex items-center gap-2 px-4 py-3 rounded-full ${isDark ? "bg-[#111118]" : "bg-gray-100"}`}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={isDark ? "#6B7280" : "#9CA3AF"} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+            placeholder={t("search.placeholder")}
+            className={`flex-1 text-sm bg-transparent outline-none ${isDark ? "text-white placeholder-gray-600" : "text-gray-900 placeholder-gray-400"}`}
+          />
+          {query && (
+            <button onClick={() => { setQuery(""); setResults([]); setSearched(false); }} className="text-gray-400 text-sm">✕</button>
+          )}
         </div>
       </div>
 
       {/* 콘텐츠 */}
-      <div className="flex-1 overflow-y-auto px-4 py-4 pb-24">
+      <div className="flex-1 overflow-y-auto pb-24 scrollbar-hide">
         {!searched ? (
-          // 검색 전: 트렌딩 키워드
-          <div>
-            <h3
-              className={`text-sm font-bold mb-3 ${
-                isDark ? "text-gray-300" : "text-gray-700"
-              }`}
-            >
-              🔥 {t("search.trending")}
+          <div className="px-5 pt-5">
+            {/* 트렌딩 */}
+            <h3 className={`text-sm font-bold mb-3 flex items-center gap-2 ${isDark ? "text-white" : "text-gray-900"}`}>
+              <span className="text-[#E91E63]">📈</span> {t("search.trending")}
             </h3>
-            <div className="flex flex-wrap gap-2">
-              {trending.map((item) => (
+            <div className="flex flex-wrap gap-2 mb-8">
+              {trending.map((tag) => (
                 <button
-                  key={item.label}
-                  onClick={() => handleTrendingClick(item.label)}
-                  className={`text-xs px-3 py-2 rounded-full active:scale-95 transition-all ${
-                    isDark
-                      ? "bg-gray-800 text-gray-300"
-                      : "bg-gray-200 text-gray-700"
-                  }`}
+                  key={tag}
+                  onClick={() => { setQuery(tag); handleSearch(tag); }}
+                  className={`text-xs px-4 py-2 rounded-full transition-all active:scale-95 ${isDark ? "bg-[#111118] text-gray-300 border border-[#1E1E2E]" : "bg-gray-100 text-gray-700"}`}
                 >
-                  {item.emoji} {item.label}
+                  {tag}
                 </button>
               ))}
             </div>
 
-            {/* 아티스트 바로가기 */}
-            <h3
-              className={`text-sm font-bold mt-6 mb-3 ${
-                isDark ? "text-gray-300" : "text-gray-700"
-              }`}
-            >
-              🎤 {t("search.browse_artists")}
+            {/* Suggested Artists */}
+            <h3 className={`text-sm font-bold mb-3 ${isDark ? "text-white" : "text-gray-900"}`}>
+              Suggested Artists
             </h3>
-            <div className="grid grid-cols-4 gap-3">
+            <div className="flex flex-col">
               {artists.map((artist) => (
                 <button
                   key={artist.id}
-                  onClick={() => handleTrendingClick(artist.name)}
-                  className={`flex flex-col items-center gap-1 py-3 rounded-2xl active:scale-95 transition-all ${
-                    isDark ? "bg-gray-900/70" : "bg-white shadow-sm"
-                  }`}
+                  onClick={() => { setQuery(artist.name); handleSearch(artist.name); }}
+                  className={`flex items-center gap-4 py-3.5 border-b transition-all active:opacity-70 ${isDark ? "border-[#1E1E2E]" : "border-gray-100"}`}
                 >
-                  <span className="text-2xl">{artist.emoji}</span>
-                  <span
-                    className={`text-[10px] font-bold ${
-                      isDark ? "text-gray-400" : "text-gray-600"
-                    }`}
-                  >
-                    {artist.name}
-                  </span>
+                  <div className={`w-11 h-11 rounded-full flex items-center justify-center text-xl ${isDark ? "bg-gray-800" : "bg-gray-50"}`}>
+                    {artist.emoji}
+                  </div>
+                  <div className="flex-1 text-left">
+                    <p className={`text-sm font-bold ${isDark ? "text-white" : "text-gray-900"}`}>{artist.name}</p>
+                    <p className={`text-xs ${isDark ? "text-gray-500" : "text-gray-400"}`}>{artist.group}</p>
+                  </div>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={isDark ? "#4B5563" : "#D1D5DB"} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="9 18 15 12 9 6" />
+                  </svg>
                 </button>
               ))}
             </div>
           </div>
         ) : loading ? (
-          // 로딩
           <div className="flex flex-col items-center justify-center py-20 gap-3">
-            <div className="text-4xl animate-spin">🦋</div>
-            <p className="text-sm text-gray-400">{t("search.searching")}</p>
+            <div className="text-4xl animate-float">🦋</div>
+            <p className={`text-sm ${isDark ? "text-gray-500" : "text-gray-400"}`}>{t("search.searching")}</p>
           </div>
         ) : results.length > 0 ? (
-          // 결과
           <div>
-            <p
-              className={`text-xs mb-4 ${
-                isDark ? "text-gray-500" : "text-gray-400"
-              }`}
-            >
+            <p className={`px-5 py-3 text-xs ${isDark ? "text-gray-500" : "text-gray-400"}`}>
               {t("search.results", { count: results.length, query })}
             </p>
-            <div className="flex flex-col gap-4">
-              {results.map((item) => (
-                <FeedCard key={item.id} item={item} />
-              ))}
-            </div>
+            {results.map((item, i) => <FeedCard key={item.id} item={item} index={i} />)}
           </div>
         ) : (
-          // 결과 없음
-          <div className="flex flex-col items-center justify-center text-center py-20">
+          <div className="flex flex-col items-center justify-center text-center py-20 animate-fade-in-up">
             <span className="text-4xl mb-4">🔍</span>
-            <p
-              className={`text-sm ${
-                isDark ? "text-gray-400" : "text-gray-500"
-              }`}
-            >
-              {t("search.no_results", { query })}
-            </p>
-            <p
-              className={`text-xs mt-1 ${
-                isDark ? "text-gray-600" : "text-gray-400"
-              }`}
-            >
-              {t("search.try_again")}
-            </p>
+            <p className={`text-sm ${isDark ? "text-gray-400" : "text-gray-500"}`}>{t("search.no_results", { query })}</p>
+            <p className={`text-xs mt-1 ${isDark ? "text-gray-600" : "text-gray-400"}`}>{t("search.try_again")}</p>
           </div>
         )}
       </div>
